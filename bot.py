@@ -6,13 +6,11 @@ import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
+# Configuración limpia de yt-dlp optimizada para SoundCloud
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'noplaylist': True,
     'quiet': True,
-    'extractor_args': {'youtube': {'player_client': ['web', 'mweb']}}, # <-- Cambiamos a web y mweb
     'geo_bypass': True,
     'nocheckcertificate': True,
     'ignoreerrors': False,
@@ -34,16 +32,15 @@ class SimpleHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"FlavioMusicc is alive!")
 
 def run_server():
-    # Render asigna dinámicamente un puerto en la variable de entorno PORT
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), SimpleHandler)
     server.serve_forever()
     
-# Iniciar el servidor web en un hilo paralelo para que no bloquee al bot de Discord
+# Iniciar el servidor web en un hilo paralelo
 server_thread = threading.Thread(target=run_server, daemon=True)
 server_thread.start()
 
-# 2. Configuración normal de tu bot de Discord
+# 2. Configuración del bot con todos los intents activados
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -62,10 +59,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, executable="ffmpeg", options="-vn"), data=data, volume=volume)
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.voice_states = True
-
 @bot.event
 async def on_ready():
     print(f"¡Conectado como {bot.user}!")
@@ -76,7 +69,7 @@ async def ping(ctx):
 
 @bot.command(name="play")
 async def play(ctx, *, search: str):
-    """Reproduce audio usando el volumen guardado"""
+    """Reproduce audio desde SoundCloud usando el volumen guardado"""
     if not ctx.author.voice:
         await ctx.send("¡Debes estar en un canal de voz para usar este comando!")
         return
@@ -89,13 +82,13 @@ async def play(ctx, *, search: str):
 
     async with ctx.typing():
         try:
-            query = search if search.startswith("http") else f"ytsearch:{search}"
+            # Usamos scsearch para buscar directamente en SoundCloud si no es un enlace
+            query = search if search.startswith("http") else f"scsearch:{search}"
             
-            # Pasamos 'current_volume' para que la canción nazca con el volumen configurado
             player = await YTDLSource.from_url(query, loop=bot.loop, stream=True, volume=current_volume)
             ctx.voice_client.play(player, after=lambda e: print(f'Error en audio: {e}') if e else None)
             
-            await ctx.send(f"🎶 Reproduciendo: **{player.title}** (Volumen: {int(current_volume * 100)}%)")
+            await ctx.send(f"🎶 Reproduciendo desde SoundCloud: **{player.title}** (Volumen: {int(current_volume * 100)}%)")
         except Exception as e:
             await ctx.send(f"Ocurrió un error al reproducir: {e}")
 
@@ -109,7 +102,6 @@ async def stop(ctx):
 
 @bot.command(name="pause")
 async def pause(ctx):
-    """Pausa la música que está sonando actualmente"""
     if ctx.voice_client and ctx.voice_client.is_playing():
         ctx.voice_client.pause()
         await ctx.send("⏸️ Música pausada. Usa `!resume` para continuar.")
@@ -118,7 +110,6 @@ async def pause(ctx):
 
 @bot.command(name="resume")
 async def resume(ctx):
-    """Reanuda la música pausada"""
     if ctx.voice_client and ctx.voice_client.is_paused():
         ctx.voice_client.resume()
         await ctx.send("▶️ Reproducción reanudada.")
@@ -127,7 +118,6 @@ async def resume(ctx):
 
 @bot.command(name="volume")
 async def volume(ctx, vol: int):
-    """Cambia el volumen actual y lo guarda para las siguientes canciones"""
     global current_volume
 
     if vol < 0 or vol > 100:
@@ -144,12 +134,8 @@ async def volume(ctx, vol: int):
 @bot.command(name="apagar")
 @commands.is_owner()
 async def apagar(ctx):
-    """Apaga el bot por completo"""
     await ctx.send("🛑 Apagando a FlavioMusicc... ¡Hasta pronto!")
     await bot.close()
 
-import os
-
-# Esto lee el token de forma segura desde las variables del sistema
 TOKEN = os.getenv("DISCORD_TOKEN")
 bot.run(TOKEN)
