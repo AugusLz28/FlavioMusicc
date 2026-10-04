@@ -11,6 +11,7 @@ ytdl_format_options = {
     'format': 'bestaudio/best',
     'noplaylist': True,
     'quiet': True,
+    'cookiefile': 'cookies.txt',  # <-- Asegúrate de agregar esta línea aquí
     'extractor_args': {'youtube': {'player_client': ['ios', 'mweb']}},
     'geo_bypass': True,
     'nocheckcertificate': True,
