@@ -11,10 +11,10 @@ cookies_path = os.path.join(current_dir, 'cookies.txt')
 
 # Configuración actualizada de YTDL para evitar el bloqueo de bots en la nube
 ytdl_format_options = {
-    'format': 'bestaudio/best',  # Volvemos al formato original que funciona bien con FFmpeg
+    'format': 'bestaudio/best',
     'noplaylist': True,
     'quiet': True,
-    'cookiefile': cookies_path,   # Aquí siguen tus cookies activas
+    'cookiefile': cookies_path,
     'extractor_args': {'youtube': {'player_client': ['ios', 'mweb']}},
     'geo_bypass': True,
     'nocheckcertificate': True,
