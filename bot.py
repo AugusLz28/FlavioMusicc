@@ -8,7 +8,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Configuración actualizada de YTDL para evitar el bloqueo de bots en la nube
 ytdl_format_options = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio', # Simplificado para evitar restricciones de formato
     'noplaylist': True,
     'quiet': True,
     'cookiefile': 'cookies.txt',  # <-- Asegúrate de agregar esta línea aquí
