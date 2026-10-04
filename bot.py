@@ -6,11 +6,19 @@ import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-# Configuración de YTDL
+# Configuración actualizada de YTDL para evitar bloqueos de YouTube en servidores
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'noplaylist': True,
     'quiet': True,
+    'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+    'geo_bypass': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0',
 }
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
