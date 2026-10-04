@@ -8,10 +8,10 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Configuración actualizada de YTDL para evitar el bloqueo de bots en la nube
 ytdl_format_options = {
-    'format': 'bestaudio', # Simplificado para evitar restricciones de formato
+    'format': 'bestaudio',  # Simplificado para evitar restricciones de formato
     'noplaylist': True,
     'quiet': True,
-    'cookiefile': 'cookies.txt',  # <-- Asegúrate de agregar esta línea aquí
+    'cookiefile': cookies_path,
     'extractor_args': {'youtube': {'player_client': ['ios', 'mweb']}},
     'geo_bypass': True,
     'nocheckcertificate': True,
