@@ -6,6 +6,9 @@ import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+cookies_path = os.path.join(current_dir, 'cookies.txt')
+
 # Configuración actualizada de YTDL para evitar el bloqueo de bots en la nube
 ytdl_format_options = {
     'format': 'bestaudio/best',  # Volvemos al formato original que funciona bien con FFmpeg
