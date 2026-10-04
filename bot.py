@@ -12,7 +12,7 @@ ytdl_format_options = {
     'format': 'bestaudio/best',
     'noplaylist': True,
     'quiet': True,
-    'extractor_args': {'youtube': {'player_client': ['android']}},  # Probamos con el cliente android puro
+    'extractor_args': {'youtube': {'player_client': ['web', 'mweb']}}, # <-- Cambiamos a web y mweb
     'geo_bypass': True,
     'nocheckcertificate': True,
     'ignoreerrors': False,
