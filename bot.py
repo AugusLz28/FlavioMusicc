@@ -3,6 +3,8 @@ from discord.ext import commands
 import yt_dlp
 import asyncio
 import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Configuración de YTDL
 ytdl_format_options = {
@@ -14,6 +16,26 @@ ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 # Variable global para recordar el volumen (por defecto 10%)
 current_volume = 0.1
+
+# 1. Servidor web falso para cumplir con el requisito de puertos de Render
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"FlavioMusicc is alive!")
+
+def run_server():
+    # Render asigna dinámicamente un puerto en la variable de entorno PORT
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(("0.0.0.0", port), SimpleHandler)
+    server.serve_forever()
+    
+# Iniciar el servidor web en un hilo paralelo para que no bloquee al bot de Discord
+server_thread = threading.Thread(target=run_server, daemon=True)
+server_thread.start()
+
+# 2. Configuración normal de tu bot de Discord
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
@@ -34,8 +56,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
-
-bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
