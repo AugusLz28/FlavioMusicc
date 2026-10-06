@@ -69,7 +69,7 @@ async def ping(ctx):
 
 @bot.command(name="play")
 async def play(ctx, *, search: str):
-    """Reproduce audio desde Bandcamp usando el volumen guardado"""
+    """Reproduce audio desde SoundCloud usando el volumen guardado"""
     if not ctx.author.voice:
         await ctx.send("¡Debes estar en un canal de voz para usar este comando!")
         return
@@ -82,13 +82,12 @@ async def play(ctx, *, search: str):
 
     async with ctx.typing():
         try:
-            # Cambiamos scsearch por bcsearch para buscar en Bandcamp
-            query = search if search.startswith("http") else f"bcsearch:{search}"
+            query = search if search.startswith("http") else f"scsearch:{search}"
             
             player = await YTDLSource.from_url(query, loop=bot.loop, stream=True, volume=current_volume)
             ctx.voice_client.play(player, after=lambda e: print(f'Error en audio: {e}') if e else None)
             
-            await ctx.send(f"🎶 Reproduciendo desde Bandcamp: **{player.title}** (Volumen: {int(current_volume * 100)}%)")
+            await ctx.send(f"🎶 Reproduciendo desde SoundCloud: **{player.title}** (Volumen: {int(current_volume * 100)}%)")
         except Exception as e:
             await ctx.send(f"Ocurrió un error al reproducir: {e}")
 
